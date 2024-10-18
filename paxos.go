@@ -168,7 +168,7 @@ func (px *Paxos) Start(tx Transaction) bool {
 
 	for {
 		select {
-		case reply := <-responseChan: // A response is received
+		case reply := <-responseChan:
 			px.mu.Lock()
 			if reply.Promise {
 				promiseCount++
@@ -183,16 +183,7 @@ func (px *Paxos) Start(tx Transaction) bool {
 			}
 			px.mu.Unlock()
 
-			// If a majority of promises are received, stop waiting
-			// if promiseCount >= majority {
-			// 	logger.Printf("Majority promises received by server %d, proceeding as leader.", px.me+1)
-			// 	megablock := px.createMegaBlock(highestAcceptVal, localTxsArray)
-			// 	if len(megablock) > 0 {
-			// 		return px.sendAccept(megablock)
-			// 	}
-			// }
-
-		case <-timeout: // The timer expires
+		case <-timeout:
 			logger.Println("Prepare phase timed out, proceeding with available promises")
 			close(responseChan)
 			if promiseCount >= majority {
@@ -278,7 +269,7 @@ func (px *Paxos) sendAccept(megablock []Transaction) bool {
 	args := AcceptArgs{Ballot: px.ballot, MegaBlock: megablock}
 	px.mu.Unlock()
 	acceptCount := 0
-	acceptChan := make(chan bool, len(px.peers)) // Channel to collect acceptance responses
+	acceptChan := make(chan bool, len(px.peers))
 	majority := len(px.peers)/2 + 1
 
 	for i := range len(px.peers) {
@@ -295,7 +286,6 @@ func (px *Paxos) sendAccept(megablock []Transaction) bool {
 				}
 			}
 
-			// Send the result of the accept call back to the channel
 			acceptChan <- reply.Accepted
 		}(i)
 	}
@@ -306,15 +296,13 @@ func (px *Paxos) sendAccept(megablock []Transaction) bool {
 			acceptCount++
 		}
 
-		// If majority is reached, stop waiting for other responses
 		if acceptCount >= majority {
 			logger.Printf("Majority accepts received: %d", acceptCount)
-			px.sendDecide(megablock) // Send Decide message once majority is reached
+			px.sendDecide(megablock)
 			return true
 		}
 	}
 
-	// If we finish the loop without reaching majority
 	logger.Printf("Failed to receive majority accepts, total accepts: %d", acceptCount)
 	close(acceptChan)
 	return false
@@ -437,7 +425,6 @@ func (px *Paxos) SynchronizeCommit(args *SyncArgs, reply *DecideResponse) error 
 	return nil
 }
 func (px *Paxos) Synchronize(commitIndex int, peer int) bool {
-	// Retrieve all committed transactions that were missed
 	count := px.committedIndex - commitIndex
 	for idx := commitIndex + 1; idx <= px.committedIndex; idx++ {
 		rows, err := px.db.Query("SELECT id, sender, receiver, amount FROM committed_log WHERE id = ?", idx)

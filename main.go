@@ -38,12 +38,10 @@ var (
 )
 
 func initLogger() {
-	// Create or open the log file
 	file, err := os.OpenFile("transactions.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}
-	// Initialize the logger
 	logger = log.New(file, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile)
 }
 
@@ -240,7 +238,7 @@ func main() {
 		txBySender, elapsedTimeMs := processTransactionSet(set, pxa)
 
 		logger.Println("---------------------------------------------------------------------------------------------")
-		fmt.Println("All transactions in the set have been processed.")
+		fmt.Println("\nAll transactions in the set have been processed.")
 		fmt.Println("Press Enter to view results...")
 		reader.ReadString('\n')
 
