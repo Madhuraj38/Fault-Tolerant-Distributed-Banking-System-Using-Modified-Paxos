@@ -170,7 +170,6 @@ func getBalances(set TransactionSet) {
 func Performance(txBySender map[int][]Transaction, elapsedTimeMs map[int]int64) {
 	var totalLatency int64
 	var totalThroughput float64
-
 	for client, elapsedTime := range elapsedTimeMs {
 		clientTransactions := len(txBySender[client])
 
@@ -201,7 +200,6 @@ func main() {
 	for i := 0; i < len(peers); i++ {
 		pxa[i] = Make(peers, i)
 		liveservers[i] = false
-		//defer pxa[i].Kill()
 	}
 
 	reader := bufio.NewReader(os.Stdin)
