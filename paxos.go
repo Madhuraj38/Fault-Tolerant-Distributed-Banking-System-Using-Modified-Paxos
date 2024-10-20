@@ -591,7 +591,6 @@ func (px *Paxos) Kill() {
 	if px.l != nil {
 		px.l.Close()
 	}
-	// px.db.Close()
 	logger.Printf("Server %d set to inactive", px.me+1)
 }
 
